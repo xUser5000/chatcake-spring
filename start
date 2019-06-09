@@ -1,0 +1,1 @@
+java -jar ./target/chatcake-1.0.0.jar -XX:+UseSerialGC -Xss512k -XX:MaxRAM=72m

@@ -6,6 +6,7 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import org.springframework.stereotype.Component;
 
+import java.nio.charset.StandardCharsets;
 import java.util.Date;
 
 @Component
@@ -18,14 +19,14 @@ public class TokenUtil {
         return Jwts.builder()
                 .setSubject(username)
                 .setExpiration(generateExpiration())
-                .signWith(SignatureAlgorithm.HS512, TOkEN_SECRET)
+                .signWith(SignatureAlgorithm.HS512, TOkEN_SECRET.getBytes(StandardCharsets.UTF_8))
                 .compact();
     }
 
     public boolean verifyToken (String token) {
         try {
             Claims claims = Jwts.parser()
-                    .setSigningKey(TOkEN_SECRET)
+                    .setSigningKey(TOkEN_SECRET.getBytes(StandardCharsets.UTF_8))
                     .parseClaimsJws(token)
                     .getBody();
             return true;
@@ -36,7 +37,7 @@ public class TokenUtil {
 
     public String getUsernameFromToken (String token) {
         return Jwts.parser()
-                .setSigningKey(TOkEN_SECRET)
+                .setSigningKey(TOkEN_SECRET.getBytes(StandardCharsets.UTF_8))
                 .parseClaimsJws(token)
                 .getBody()
                 .getSubject();

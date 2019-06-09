@@ -16,6 +16,7 @@ class RoomService {
     @Autowired private UserRepository userRepository;
     @Autowired private TokenUtil tokenUtil;
 
+    // get room info
     Room getRoomInfo (String roomId, String token) {
 
         Room room = roomRepository.getRoomInfo(roomId);
@@ -32,6 +33,7 @@ class RoomService {
         return room;
     }
 
+    // create a new room
     Room createRoom (String token, String roomName) {
         String username = tokenUtil.getUsernameFromToken(token);
         String roomId = roomRepository.createRoom(username, roomName);
@@ -43,8 +45,48 @@ class RoomService {
         return room;
     }
 
+    // add member to a room
     void addMember (String username, String roomId, String token) {
 
+        String admin = tokenUtil.getUsernameFromToken(token);
+        Room room = roomRepository.getRoomInfo(roomId);
+
+        // security cautions
+        exists(roomId, username);
+        checkInRoom(room, admin, username);
+
+        roomRepository.addMember(username, roomId);
+        userRepository.addRoom(username, roomId);
+    }
+
+    // remove member from room
+    void removeRoom (String token, String roomId, String username) {
+
+        // get the admin
+        String admin = tokenUtil.getUsernameFromToken(token);
+        Room room = roomRepository.getRoomInfo(roomId);
+
+        // security cautions
+        exists(roomId, username);
+
+        // assert that the username is an admin
+        if (!room.getAdmin().equals(admin))
+            throw new ForbiddenException("You are not an admin");
+
+        // assert the user is in the room
+        if (!room.getMembers().contains(username) && !room.getAdmin().equals(username))
+            throw new ForbiddenException("User is not a member in the room");
+
+        roomRepository.removeMember(username, roomId);
+        userRepository.removeRoom(username, roomId);
+
+    }
+
+
+    // private util functions:
+
+    // check if the username and room exist
+    private void exists (String roomId, String username) {
         // check if the room exists
         if (!roomRepository.checkRoom(roomId))
             throw new NotFoundException("Room was not found");
@@ -52,20 +94,19 @@ class RoomService {
         // check if the username exists
         if (!userRepository.checkUsername(username))
             throw new NotFoundException("User was not found");
+    }
 
-        String admin = tokenUtil.getUsernameFromToken(token);
-        Room room = roomRepository.getRoomInfo(roomId);
-
+    // check if the room is a member
+    private void checkInRoom (Room room, String admin, String username) {
         // assert that the username is an admin
         if (!room.getAdmin().equals(admin))
             throw new ForbiddenException("You are not an admin");
 
         // assert the user is not in the room
-        if (room.getMembers().contains(username))
+        if (room.getMembers().contains(username) || room.getAdmin().equals(username))
             throw new ForbiddenException("User is already a member in the room");
-
-        roomRepository.addMember(username, roomId);
-        userRepository.addRoom(username, roomId);
     }
+
+
 
 }

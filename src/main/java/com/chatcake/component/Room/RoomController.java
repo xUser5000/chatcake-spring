@@ -31,4 +31,13 @@ public class RoomController {
         roomService.addMember(username, roomId, token);
     }
 
+    @DeleteMapping("/removeMember/{roomId}/{username}")
+    public void removeMember (
+            @NotEmpty @PathVariable String roomId,
+            @NotEmpty @PathVariable String username,
+            @NotEmpty @RequestHeader("Authorization") String token
+    ) {
+        roomService.removeRoom(token, roomId, username);
+    }
+
 }

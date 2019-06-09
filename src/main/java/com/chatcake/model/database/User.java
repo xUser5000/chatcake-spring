@@ -3,6 +3,7 @@ package com.chatcake.model.database;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.bson.types.ObjectId;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.index.TextIndexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.util.ArrayList;
@@ -11,9 +12,9 @@ import java.util.List;
 @Document(collection = "users")
 public class User {
 
-    @Id() private String id;
-    private String name;
-    private String username;
+    @Id private String id;
+    @TextIndexed private String name;
+    @TextIndexed(weight = 2) private String username;
     @JsonIgnore private String password;
     private List<String> rooms;
 

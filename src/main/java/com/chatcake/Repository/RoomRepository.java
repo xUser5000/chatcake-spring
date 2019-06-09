@@ -31,6 +31,12 @@ public class RoomRepository extends BaseRepository {
         mongoTemplate.updateFirst(query, update, Room.class);
     }
 
+    public void removeMember (String username, String roomId) {
+        Query query = generateQuery(Criteria.where("id").is(roomId));
+        Update update = new Update().pull("members", username);
+        mongoTemplate.updateFirst(query, update, Room.class);
+    }
+
     public boolean checkRoom (String roomId) {
         return mongoTemplate.findById(roomId, Room.class) != null;
     }

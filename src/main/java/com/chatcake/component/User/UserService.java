@@ -43,4 +43,9 @@ class UserService {
 
         return rooms;
     }
+
+    // search for a user using queryString
+    List<User> searchUser (String queryString) {
+        return userRepository.searchUser(queryString);
+    }
 }
